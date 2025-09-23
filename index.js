@@ -6,8 +6,8 @@ const config = {
     channelAccessToken: process.env.CHANNEL_ACCESS_TOKEN,
     channelSecret: process.env.CHANNEL_SECRET,
 };
-const modelUrl = 'https://teachablemachine.withgoogle.com/models/1i_v_rE_a/model.json';
-const classNames = ['healthy', 'mosaic virus', 'Yellow Leaf Curl Virus', 'Target Spot', 'Spider mites', 'Septoria leaf spot','Leaf Mold','Late blight','Early blight','Bacterial spot'];
+const modelUrl = 'https://teachablemachine.withgoogle.com/models/FncwMoWqm/model.json';
+const classNames = ['Anthracnose', 'Bacterial Canker', 'Cutting Weevil', 'Die Back', 'Gall Midge', 'Healthy', 'Powdery Mildew', 'Sooty Mould'];
 
 const app = express();
 const client = new line.Client(config);
