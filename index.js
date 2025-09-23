@@ -28,7 +28,25 @@ async function handleEvent(event) {
     }
     try {
         const imageBuffer = await getImageBufferFromLine(event.message.id);
-        const imageTensor = tf.node.decodeImage(imageBuffer, 3).resizeNearestNeighbor([224, 224]).toFloat().expandDims();
+
+        // ===============================================================
+        // ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼
+        //                  >>> จุดที่แก้ไข <<<
+        //       เพิ่ม .div(tf.scalar(127.5)).sub(tf.scalar(1))
+        //   เพื่อปรับค่าสีของรูปภาพให้เหมือนกับตอนที่เทรนโมเดล
+        // ===============================================================
+
+        const imageTensor = tf.node.decodeImage(imageBuffer, 3)
+            .resizeNearestNeighbor([224, 224])
+            .toFloat()
+            .div(tf.scalar(127.5)) // <-- เพิ่มบรรทัดนี้
+            .sub(tf.scalar(1))     // <-- และบรรทัดนี้
+            .expandDims();
+
+        // ===============================================================
+        // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
+        // ===============================================================
+
         const predictionResult = await model.predict(imageTensor).data();
 
         let bestPrediction = { className: 'ไม่รู้จัก', probability: 0 };
