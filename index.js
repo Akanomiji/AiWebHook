@@ -2,19 +2,12 @@ const express = require('express');
 const line = require('@line/bot-sdk');
 const tf = require('@tensorflow/tfjs-node');
 
-// ===============================================================
-// ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼
-//                  >>> ส่วนที่ต้องแก้ไข <<<
-// ===============================================================
 const config = {
-    channelAccessToken: process.env.CHANNEL_ACCESS_TOKEN || 'ViemuhahPnVU7sx6PHn7o38oIMAN53NCCTNyn/MOSw2kEBCrDjblMu3dAXJGOiiXjmGZKEzGSh8+Qu34m0zFdgDcBE/N/DRbhhq3vGN55ABI4KI6WCaEH1mYbaRX0+ExJREvPmWeM1dkN39TX5FhlQdB04t89/1O/w1cDnyilFU=',
-    channelSecret: process.env.CHANNEL_SECRET || '64f431e7e5bdf81b3d629aaa8eed6a6d',
+    channelAccessToken: process.env.CHANNEL_ACCESS_TOKEN,
+    channelSecret: process.env.CHANNEL_SECRET,
 };
 const modelUrl = 'https://teachablemachine.withgoogle.com/models/1i_v_rE_a/model.json';
-const classNames = ['healthy', 'mosaic virus', 'Yellow Leaf Curl Virus', 'Target Spot', 'Spider mites', 'Septoria leaf spot','Leaf Mold','Late blight','Early blight','Bacterial spot']; // !!! แก้ไขให้ตรงกับโมเดลของคุณ !!!
-// ===============================================================
-// ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
-// ===============================================================
+const classNames = ['healthy', 'mosaic virus', 'Yellow Leaf Curl Virus', 'Target Spot', 'Spider mites', 'Septoria leaf spot','Leaf Mold','Late blight','Early blight','Bacterial spot'];
 
 const app = express();
 const client = new line.Client(config);
@@ -51,7 +44,7 @@ async function handleEvent(event) {
 
         return client.replyMessage(event.replyToken, { type: 'text', text: replyText });
     } catch (error) {
-        console.error('เกิดข้อผิดพลาด:', error);
+        console.error(error);
         return client.replyMessage(event.replyToken, { type: 'text', text: 'ขออภัยค่ะ เกิดข้อผิดพลาดบางอย่าง' });
     }
 }
@@ -70,15 +63,15 @@ function getImageBufferFromLine(messageId) {
 
 async function startServer() {
     try {
-        console.log('กำลังโหลดโมเดล...');
+        console.log('Loading model...');
         model = await tf.loadLayersModel(modelUrl);
-        console.log('โหลดโมเดลสำเร็จ!');
+        console.log('Model loaded!');
         const port = process.env.PORT || 3000;
         app.listen(port, () => {
-            console.log(`บอทพร้อมทำงานที่ port ${port}`);
+            console.log(`Bot is ready on port ${port}`);
         });
     } catch (error) {
-        console.error('ไม่สามารถโหลดโมเดลได้:', error);
+        console.error('Failed to load model:', error);
     }
 }
 
