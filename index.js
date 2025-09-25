@@ -63,7 +63,7 @@ async function handleEvent(event) {
                             "contents": [
                                 {
                                     "type": "image",
-                                    "url": "https://i.imgur.com/3EgtUv6.png", // URL ของไอคอน AI หรือ Bot
+                                    "url": "bot.png", // URL ของไอคอน AI หรือ Bot
                                     "size": "xxs",
                                     "flex": 1,
                                     "gravity": "center"
