@@ -63,7 +63,7 @@ async function handleEvent(event) {
                             "contents": [
                                 {
                                     "type": "image",
-                                    "url": "bot.png", // URL ของไอคอน AI หรือ Bot
+                                    "url": "", // URL ของไอคอน AI หรือ Bot
                                     "size": "xxs",
                                     "flex": 1,
                                     "gravity": "center"
