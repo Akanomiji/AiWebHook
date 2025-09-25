@@ -6,7 +6,7 @@ const config = {
     channelAccessToken: process.env.CHANNEL_ACCESS_TOKEN,
     channelSecret: process.env.CHANNEL_SECRET,
 };
-const modelUrl = 'https://teachablemachine.withgoogle.com/models/FncwMoWqm/model.json';
+const modelUrl = 'https://teachablemachine.withgoogle.com/models/FncwMoWqm/model.json'; // <-- อย่าลืมใส่ URL ของโมเดลคุณตรงนี้นะครับ
 const classNames = ['Anthracnose', 'Bacterial Canker', 'Cutting Weevil', 'Die Back', 'Gall Midge', 'Healthy', 'Powdery Mildew', 'Sooty Mould'];
 
 const app = express();
@@ -29,23 +29,12 @@ async function handleEvent(event) {
     try {
         const imageBuffer = await getImageBufferFromLine(event.message.id);
 
-        // ===============================================================
-        // ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼
-        //                  >>> จุดที่แก้ไข <<<
-        //       เพิ่ม .div(tf.scalar(127.5)).sub(tf.scalar(1))
-        //   เพื่อปรับค่าสีของรูปภาพให้เหมือนกับตอนที่เทรนโมเดล
-        // ===============================================================
-
         const imageTensor = tf.node.decodeImage(imageBuffer, 3)
             .resizeNearestNeighbor([224, 224])
             .toFloat()
-            .div(tf.scalar(127.5)) // <-- เพิ่มบรรทัดนี้
-            .sub(tf.scalar(1))     // <-- และบรรทัดนี้
+            .div(tf.scalar(127.5))
+            .sub(tf.scalar(1))
             .expandDims();
-
-        // ===============================================================
-        // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
-        // ===============================================================
 
         const predictionResult = await model.predict(imageTensor).data();
 
@@ -58,9 +47,117 @@ async function handleEvent(event) {
         }
 
         const confidence = Math.round(bestPrediction.probability * 100);
-        const replyText = `ฉันคิดว่ารูปนี้คือ "${bestPrediction.className}" นะ! (ความแม่นยำ ${confidence}%)`;
 
-        return client.replyMessage(event.replyToken, { type: 'text', text: replyText });
+        const flexMessage = {
+            "type": "flex",
+            "altText": `ผลการทำนาย: ${bestPrediction.className} (ความแม่นยำ ${confidence}%)`,
+            "contents": {
+                "type": "bubble",
+                "header": {
+                    "type": "box",
+                    "layout": "vertical",
+                    "contents": [
+                        {
+                            "type": "box",
+                            "layout": "horizontal",
+                            "contents": [
+                                {
+                                    "type": "image",
+                                    "url": "https://i.imgur.com/3EgtUv6.png", // URL ของไอคอน AI หรือ Bot
+                                    "size": "xxs",
+                                    "flex": 1,
+                                    "gravity": "center"
+                                },
+                                {
+                                    "type": "text",
+                                    "text": "ผลการวิเคราะห์รูปภาพ",
+                                    "weight": "bold",
+                                    "size": "md",
+                                    "color": "#1A1A1A",
+                                    "flex": 4,
+                                    "margin": "md",
+                                    "gravity": "center"
+                                }
+                            ]
+                        }
+                    ],
+                    "paddingAll": "12px"
+                },
+                "body": {
+                    "type": "box",
+                    "layout": "vertical",
+                    "spacing": "md",
+                    "contents": [
+                        {
+                            "type": "separator"
+                        },
+                        {
+                            "type": "box",
+                            "layout": "vertical",
+                            "margin": "lg",
+                            "spacing": "sm",
+                            "contents": [
+                                {
+                                    "type": "box",
+                                    "layout": "horizontal",
+                                    "contents": [
+                                        {
+                                            "type": "text",
+                                            "text": "โรคที่พบ:",
+                                            "size": "sm",
+                                            "color": "#555555",
+                                            "flex": 0
+                                        },
+                                        {
+                                            "type": "text",
+                                            "text": bestPrediction.className,
+                                            "size": "sm",
+                                            "color": "#111111",
+                                            "align": "end",
+                                            "weight": "bold"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "type": "box",
+                                    "layout": "horizontal",
+                                    "contents": [
+                                        {
+                                            "type": "text",
+                                            "text": "ความแม่นยำ:",
+                                            "size": "sm",
+                                            "color": "#555555",
+                                            "flex": 0
+                                        },
+                                        {
+                                            "type": "text",
+                                            "text": `${confidence}%`,
+                                            "size": "sm",
+                                            "color": "#111111",
+                                            "align": "end",
+                                            "weight": "bold"
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "type": "separator",
+                            "margin": "lg"
+                        }
+                    ]
+                },
+                "styles": {
+                    "header": {
+                        "backgroundColor": "#F0F0F0"
+                    }
+                }
+            }
+        };
+
+        // ส่ง Flex Message กลับไปหาผู้ใช้
+        return client.replyMessage(event.replyToken, flexMessage);
+
     } catch (error) {
         console.error(error);
         return client.replyMessage(event.replyToken, { type: 'text', text: 'ขออภัยค่ะ เกิดข้อผิดพลาดบางอย่าง' });
