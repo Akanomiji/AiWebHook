@@ -63,7 +63,7 @@ async function handleEvent(event) {
                             "contents": [
                                 {
                                     "type": "image",
-                                    "url": "https://i.imgur.com/3EgtUv6.png", // URL ของไอคอน AI หรือ Bot
+                                    "url": "https://img.freepik.com/free-vector/graident-ai-robot-vectorart_78370-4114.jpg?semt=ais_hybrid&w=740&q=80", 
                                     "size": "xxs",
                                     "flex": 1,
                                     "gravity": "center"
